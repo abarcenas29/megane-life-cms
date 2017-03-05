@@ -12,13 +12,28 @@
  */
 
 import React from 'react'
+import css from 'styled-components'
+
+import MainNav from './sections/MainNav'
+
+const PageContainer = css.div`
+  display: flex;
+  flex-direction: column;
+`
+
+const Content = css.div`
+  flex-grow: 1;
+`
 
 export default class App extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render () {
     return (
-      <div>
-        {React.Children.toArray(this.props.children)}
-      </div>
+      <PageContainer>
+        <MainNav />
+        <Content>
+          {React.Children.toArray(this.props.children)}
+        </Content>
+      </PageContainer>
     )
   }
 }

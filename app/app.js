@@ -43,14 +43,18 @@ import { translationMessages } from './i18n'
 // import './global-styles';
 import '../semantic-ui/dist/semantic.css'
 
-const LatoFontObserver = new FontFaceObserver('Lato', {})
-LatoFontObserver.load().then(() => {
-  document.body.classList.add('fontLoaded')
-},
-() => {
+const RobotFontObserver = new FontFaceObserver('Roboto', {})
+const OpenSansFontObserver = new FontFaceObserver('Open Sans', {})
+Promise.all([
+  RobotFontObserver.load(),
+  OpenSansFontObserver.load()
+])
+.then(font => {
+  console.log('both fonts loaded')
+})
+.catch(e => {
   document.body.classList.remove('fontLoaded')
-}
-)
+})
 
 // Import root routes
 import createRoutes from './routes'
