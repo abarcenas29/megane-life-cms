@@ -15,6 +15,7 @@ import React from 'react'
 import css from 'styled-components'
 
 import MainNav from './sections/MainNav'
+import ModalSettings from './sections/ModalSettings'
 
 const PageContainer = css.div`
   display: flex;
@@ -26,6 +27,25 @@ const Content = css.div`
 `
 
 export default class App extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  constructor (props, context) {
+    super(props, context)
+
+    this.state = {
+      settingsTab: {
+        activeTab: 'general'
+      }
+    }
+
+    this.handleModalTab = this.handleModalTab.bind(this)
+  }
+
+  handleModalTab (e, { name }) {
+    const settingsTab = {
+      activeTab: name
+    }
+    this.setState({settingsTab})
+  }
+
   render () {
     return (
       <PageContainer>
@@ -33,6 +53,9 @@ export default class App extends React.PureComponent { // eslint-disable-line re
         <Content>
           {React.Children.toArray(this.props.children)}
         </Content>
+        <ModalSettings
+          handleModalTab={this.handleModalTab}
+          activeTab={this.state.settingsTab.activeTab} />
       </PageContainer>
     )
   }
