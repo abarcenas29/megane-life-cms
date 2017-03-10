@@ -4,42 +4,75 @@
  *
  */
 
-import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
-import { createStructuredSelector } from 'reselect';
-import makeSelectHome from './selectors';
-import messages from './messages';
+import React, { PureComponent } from 'react'
+import Helmet from 'react-helmet'
+import { connect } from 'react-redux'
 
-export class Home extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  render() {
+import { createStructuredSelector } from 'reselect'
+import makeSelectHome from './selectors'
+
+import {
+  Grid
+} from 'semantic-ui-react'
+
+import AnnounceArea from './section/AnnounceArea'
+
+import AnnounceModalSettings from './section/AnnounceModalSettings'
+
+export class Home extends PureComponent { // eslint-disable-line react/prefer-stateless-function
+  constructor (props, context) {
+    super(props, context)
+
+    this.state = {
+      dismissMessage: true,
+      messageModal: false
+    }
+
+    this.handleAnnouncement = this.handleAnnouncement.bind(this)
+    this.announcementSettingsModalOpen = this.announcementSettingsModalOpen.bind(this)
+    this.announcementSettingsModalClose = this.announcementSettingsModalClose.bind(this)
+  }
+
+  handleAnnouncement () {
+    this.setState({dismissMessage: false})
+  }
+
+  announcementSettingsModalOpen () {
+    this.setState({messageModal: true})
+  }
+
+  announcementSettingsModalClose () {
+    this.setState({messageModal: false})
+  }
+
+  render () {
     return (
-      <div>
+      <Grid padded centered>
         <Helmet
-          title="Home"
+          title='Home'
           meta={[
-            { name: 'description', content: 'Description of Home' },
+            { name: 'description', content: 'Description of Home' }
           ]}
         />
-        <FormattedMessage {...messages.header} />
-      </div>
-    );
+        <AnnounceArea
+          onClose={this.handleAnnouncement}
+          visibility={this.state.dismissMessage}
+          SettingsModalOpen={this.announcementSettingsModalOpen}
+        />
+        <AnnounceModalSettings />
+      </Grid>
+    )
   }
 }
 
-Home.propTypes = {
-  dispatch: PropTypes.func.isRequired,
-};
-
 const mapStateToProps = createStructuredSelector({
-  Home: makeSelectHome(),
-});
+  Home: makeSelectHome()
+})
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
   return {
-    dispatch,
-  };
+    dispatch
+  }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(mapStateToProps, mapDispatchToProps)(Home)

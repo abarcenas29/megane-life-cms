@@ -17,8 +17,8 @@ function ModalSettings ({
   return (
     <ModalDefault
       size='small'
-      defaultOpen
       header={<Header as='h2'>Global Settings</Header>}
+      {...props}
     >
       <Menu attached='top' tabular>
         <Menu.Item

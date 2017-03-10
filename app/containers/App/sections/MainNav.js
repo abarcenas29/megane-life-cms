@@ -7,7 +7,9 @@ import {
 
 import Logo from 'images/mlogo.svg'
 
-function MainNav () {
+function MainNav ({
+  openSettingsModal
+}) {
   return (
     <Menu fluid stackable borderless>
       <Menu.Menu>
@@ -35,7 +37,7 @@ function MainNav () {
           <Icon name='search' size='large' />
         </Menu.Item>
         <Menu.Item link>
-          <Icon name='options' size='large' />
+          <Icon name='options' size='large' onClick={openSettingsModal} />
         </Menu.Item>
       </Menu.Menu>
     </Menu>

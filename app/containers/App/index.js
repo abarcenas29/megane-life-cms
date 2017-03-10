@@ -33,9 +33,12 @@ export default class App extends React.PureComponent { // eslint-disable-line re
     this.state = {
       settingsTab: {
         activeTab: 'general'
-      }
+      },
+      settingsModal: false
     }
 
+    this.handleModalSettingsOpen = this.handleModalSettingsOpen.bind(this)
+    this.handleModalSettingsClose = this.handleModalSettingsClose.bind(this)
     this.handleModalTab = this.handleModalTab.bind(this)
   }
 
@@ -46,16 +49,29 @@ export default class App extends React.PureComponent { // eslint-disable-line re
     this.setState({settingsTab})
   }
 
+  handleModalSettingsOpen () {
+    this.setState({settingsModal: true})
+  }
+
+  handleModalSettingsClose () {
+    this.setState({settingsModal: false})
+  }
+
   render () {
     return (
       <PageContainer>
-        <MainNav />
+        <MainNav
+          openSettingsModal={this.handleModalSettingsOpen}
+        />
         <Content>
           {React.Children.toArray(this.props.children)}
         </Content>
         <ModalSettings
           handleModalTab={this.handleModalTab}
-          activeTab={this.state.settingsTab.activeTab} />
+          activeTab={this.state.settingsTab.activeTab}
+          open={this.state.settingsModal}
+          onClose={this.handleModalSettingsClose}
+        />
       </PageContainer>
     )
   }

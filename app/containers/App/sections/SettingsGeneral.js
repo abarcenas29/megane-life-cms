@@ -91,7 +91,7 @@ function SettingsGeneral () {
               fluid
               component={Input}
               name='email'
-              icon='envelope outline'
+              icon='envelope'
               iconPosition='left'
             />
           </Grid.Column>
