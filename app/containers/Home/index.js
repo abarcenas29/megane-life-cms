@@ -59,7 +59,10 @@ export class Home extends PureComponent { // eslint-disable-line react/prefer-st
           visibility={this.state.dismissMessage}
           SettingsModalOpen={this.announcementSettingsModalOpen}
         />
-        <AnnounceModalSettings />
+        <AnnounceModalSettings
+          open={this.state.messageModal}
+          onClose={this.announcementSettingsModalClose}
+        />
       </Grid>
     )
   }
