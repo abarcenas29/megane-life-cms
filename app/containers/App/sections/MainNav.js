@@ -1,4 +1,5 @@
 import React from 'react'
+import css from 'styled-components'
 import {
   Menu,
   Icon,
@@ -7,11 +8,15 @@ import {
 
 import Logo from 'images/mlogo.svg'
 
+const MenuStyle = css(Menu)`
+  margin-bottom: 0 !important;
+`
+
 function MainNav ({
   openSettingsModal
 }) {
   return (
-    <Menu fluid stackable borderless>
+    <MenuStyle fluid stackable borderless>
       <Menu.Menu>
         <Menu.Item>
           <Image src={Logo} size='small' />
@@ -40,7 +45,7 @@ function MainNav ({
           <Icon name='options' size='large' onClick={openSettingsModal} />
         </Menu.Item>
       </Menu.Menu>
-    </Menu>
+    </MenuStyle>
   )
 }
 
