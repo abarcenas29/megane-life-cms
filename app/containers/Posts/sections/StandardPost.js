@@ -4,7 +4,9 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { createStructuredSelector } from 'reselect'
 
-import Wysiwig from 'components/Wysiwig'
+// import Wysiwig from 'components/Wysiwig'
+// import DraftJs from 'components/DraftJs'
+import Wysiwig2 from 'components/Wysiwig2'
 
 import {
   formValueSelector
@@ -12,8 +14,7 @@ import {
 
 import {
   reduxForm,
-  Field,
-  FieldArray
+  Field
 } from 'redux-form/immutable'
 
 import {
@@ -26,65 +27,10 @@ import {
 } from 'semantic-ui-react'
 
 import Input from 'components/ReduxFields/Input'
-import Select from 'components/ReduxFields/Select'
 
 const Article = css.article`
   margin: 1em;
 `
-
-function renderPost ({
-  fields,
-  meta: { touched, error },
-  postBody
-}) {
-  postBody = (postBody) ? postBody.toJS() : []
-  return (
-    <Grid as='section'>
-      {
-        fields.map((section, index) => {
-          return (
-            <Grid.Row key={index}>
-              <Grid.Column computer={16} textAlign='center'>
-                <Field
-                  name={`${section}.type`}
-                  component={Select}
-                  selection
-                  options={[
-                    {text: 'Image', value: 0},
-                    {text: 'text', value: 1}
-                  ]}
-                />
-                <Button onClick={() => fields.remove(index)} negative icon='trash' />
-              </Grid.Column>
-              <Grid.Column computer={16}>
-                {
-                  postBody[index] && postBody[index].type === 0 &&
-                  <p>Image</p>
-                }
-                {
-                  postBody[index] && postBody[index].type === 1 &&
-                  <Wysiwig value={'thisnsfsdf'} />
-                }
-              </Grid.Column>
-            </Grid.Row>
-          )
-        })
-      }
-      <Grid.Row>
-        <Grid.Column computer={16} textAlign='center'>
-          <Button
-            color='orange'
-            basic
-            onClick={() => fields.push()}
-          >
-            <Icon name='plus' />
-            Add Post Section
-          </Button>
-        </Grid.Column>
-      </Grid.Row>
-    </Grid>
-  )
-}
 
 function StandardPostRead ({
   openWysiwig
@@ -206,11 +152,7 @@ function StandardPostEdit ({
         />
       </header>
       <Divider hidden />
-      <FieldArray
-        component={renderPost}
-        name='post_body'
-        postBody={formValues.get('post_body')}
-      />
+      <Wysiwig2 />
     </Article>
   )
 }
@@ -229,7 +171,7 @@ function StandardPost ({
         <StandardPostRead
           openWysiwig={openWysiwig}
         />
-      }
+        }
         {
         control === 'edit' &&
         <StandardPostEdit

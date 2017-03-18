@@ -2309,6 +2309,10 @@ draft-js@0.10.0:
     immutable "~3.7.4"
     object-assign "^4.1.0"
 
+draftjs-to-html@0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/draftjs-to-html/-/draftjs-to-html-0.7.0.tgz#22aaf9d40a1397b57c73fb0b0bde2b1fd6755456"
+
 draftjs-utils@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/draftjs-utils/-/draftjs-utils-0.7.0.tgz#71a9706d11e84888d7cf07b5665612e59973f1b7"
@@ -2897,18 +2901,7 @@ fbjs@0.1.0-alpha.10:
     promise "^7.0.3"
     whatwg-fetch "^0.9.0"
 
-fbjs@^0.8.1, fbjs@^0.8.4, fbjs@^0.8.5, fbjs@^0.8.6:
-  version "0.8.6"
-  resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.6.tgz#7eb67d6986b2d5007a9b6e92e0e7cb6f75cad290"
-  dependencies:
-    core-js "^1.0.0"
-    isomorphic-fetch "^2.1.1"
-    loose-envify "^1.0.0"
-    object-assign "^4.1.0"
-    promise "^7.1.1"
-    ua-parser-js "^0.7.9"
-
-fbjs@^0.8.7:
+fbjs@^0.8.1, fbjs@^0.8.4, fbjs@^0.8.5, fbjs@^0.8.6, fbjs@^0.8.7:
   version "0.8.9"
   resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.9.tgz#180247fbd347dcc9004517b904f865400a0c8f14"
   dependencies:
