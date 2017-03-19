@@ -5,7 +5,7 @@
 */
 
 import React, { Component } from 'react'
-import Immutable from 'immutable'
+import Immutable, { fromJS } from 'immutable'
 import css from 'styled-components'
 import draftToHtml from 'draftjs-to-html'
 
@@ -17,16 +17,27 @@ import Draft, {
 
 import {
   getSelectionRange,
-  getSelectionCoords
+  getSelectionCoords,
+  getSelectedBlockElement
 } from './utils/getSelection'
 
 import {
+  Button,
   Menu
 } from 'semantic-ui-react'
+
+import {
+  BlockToolbar,
+  InlineToolbar
+} from './tools/toolbars'
 
 const Container = css.div`
   display: flex;
   flex-direction: column;
+`
+
+const EditorContainer = css.div`
+  position: relative;
 `
 
 const TextArea = css.textarea`
@@ -48,23 +59,61 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
 
     this.state = {
       activeTab: 'editor',
-      editorState: EditorState.createEmpty()
+      editorState: EditorState.createEmpty(),
+      inLineStyle: fromJS({
+        show: false,
+        top: 0,
+        left: 0
+      })
     }
 
     this.handleActiveTab = this.handleActiveTab.bind(this)
     this.handleEditorOnChange = this.handleEditorOnChange.bind(this)
+    this.updateBlockPosition = this.updateBlockPosition.bind(this)
     this.focusEditor = () => setTimeout(() => this.editor.focus(), 0)
   }
 
   handleEditorOnChange (editorState) {
     const selection = editorState.getSelection()
-    if (!selection.isCollapsed()) {
+    const inLineStyle = this.state.inLineStyle.toJS()
+    if (selection && !selection.isCollapsed()) {
       const selectionRange = getSelectionRange()
-      const selectionCoords = getSelectionCoords(selectionRange)
+      const {offsetLeft, offsetTop} = getSelectionCoords(selectionRange, 'editor')
 
-      console.log(selectionCoords)
+      inLineStyle.show = true
+      inLineStyle.top = offsetTop
+      inLineStyle.left = offsetLeft
+    } else {
+      inLineStyle.show = false
     }
-    this.setState({editorState})
+    this.setState({
+      editorState,
+      inLineStyle: fromJS(inLineStyle)
+    },
+      this.updateBlockPosition
+    )
+  }
+
+  updateBlockPosition () {
+    const selectionRange = getSelectionRange()
+    let sideToolbarOffsetTop = 0
+    let selectedBlock
+    if (selectionRange) {
+      selectedBlock = getSelectedBlockElement(selectionRange)
+    }
+
+    if (selectedBlock) {
+      const editorBounds = document.getElementById('editor').getBoundingClientRect()
+      const blockBounds = selectedBlock.getBoundingClientRect()
+
+      sideToolbarOffsetTop = (blockBounds.bottom - editorBounds.top) - 31
+    }
+
+    this.setState({
+      selectedBlock,
+      selectionRange,
+      sideToolbarOffsetTop
+    })
   }
 
   handleActiveTab (activeTab, callback) {
@@ -74,7 +123,15 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
   }
 
   render () {
-    const {activeTab, editorState} = this.state
+    const {
+      activeTab,
+      editorState,
+      inLineStyle,
+      selectedBlock,
+      sideToolbarOffsetTop
+    } = this.state
+    const { top, left, show } = inLineStyle.toJS()
+
     const contentState = editorState.getCurrentContent()
     const JSONEntity = JSON.stringify(convertToRaw(contentState), null, 2)
     const HTML = draftToHtml(convertToRaw(contentState))
@@ -104,14 +161,24 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
         </Menu>
         {
           activeTab === 'editor' &&
-          <div className='article-body' id='editor'>
+          <EditorContainer className='article-body' id='editor'>
+            {
+              selectedBlock &&
+              <BlockToolbar
+                top={sideToolbarOffsetTop}
+              />
+            }
+            {
+              show &&
+              <InlineToolbar top={top} left={left} />
+            }
             <Editor
               editorState={editorState}
               onChange={this.handleEditorOnChange}
               blockRenderMap={extBlockRenderMap}
               ref={editor => { this.editor = editor }}
             />
-          </div>
+          </EditorContainer>
         }
         {
           activeTab === 'preview' &&

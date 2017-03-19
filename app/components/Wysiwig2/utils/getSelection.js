@@ -6,7 +6,7 @@ export function getSelectionRange () {
 }
 
 export function getSelectedBlockElement (range) {
-  let node = range.start
+  let node = range.startContainer
   do {
     const nodeIsDataBlock = node.getAttribute
       ? node.getAttribute('data-block')
@@ -18,15 +18,17 @@ export function getSelectedBlockElement (range) {
   return null
 }
 
-export function getSelectionCoords (selectionRange) {
-  const editorBounds = document.getElementById('editor').getBoundingClientRect()
+export function getSelectionCoords (selectionRange, id) {
+  // if (!selectionRange) return null
+
+  const editorBounds = document.getElementById(id).getBoundingClientRect()
   const rangeBounds = selectionRange.getBoundingClientRect()
 
   const rangeWidth = rangeBounds.right - rangeBounds.left
 
   // const rangeHeight= rangeBounds.bottom - rangeBounds.top
-  const offsetLeft = (rangeBounds.left - editorBounds.left) + (rangeWidth / 2) - (72 / 2)
-  const offsetTop = rangeBounds.top - editorBounds.top - 42
+  const offsetLeft = (rangeBounds.left - editorBounds.left) + (rangeWidth / 2) - 80
+  const offsetTop = rangeBounds.top - editorBounds.top + 20
 
   return { offsetLeft, offsetTop }
 }
