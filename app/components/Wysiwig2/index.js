@@ -5,14 +5,15 @@
 */
 
 import React, { Component } from 'react'
-import Immutable, { fromJS } from 'immutable'
+import { fromJS } from 'immutable'
 import css from 'styled-components'
 import draftToHtml from 'draftjs-to-html'
 
-import Draft, {
+import {
   Editor,
   EditorState,
-  convertToRaw
+  convertToRaw,
+  RichUtils
 } from 'draft-js'
 
 import {
@@ -22,7 +23,6 @@ import {
 } from './utils/getSelection'
 
 import {
-  Button,
   Menu
 } from 'semantic-ui-react'
 
@@ -30,6 +30,8 @@ import {
   BlockToolbar,
   InlineToolbar
 } from './tools/toolbars'
+
+import blockRenderMap from './blockrender/blockRenderMap'
 
 const Container = css.div`
   display: flex;
@@ -44,15 +46,6 @@ const TextArea = css.textarea`
   min-height: 50em;
 `
 
-// replace generic style to p instead of div
-const blockRenderMap = Immutable.Map({
-  unstyled: {
-    element: 'p'
-  }
-})
-
-const extBlockRenderMap = Draft.DefaultDraftBlockRenderMap.merge(blockRenderMap)
-
 class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless-function
   constructor (props) {
     super(props)
@@ -60,6 +53,8 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     this.state = {
       activeTab: 'editor',
       editorState: EditorState.createEmpty(),
+      readOnly: false,
+      sideToolbarOffsetTop: 0,
       inLineStyle: fromJS({
         show: false,
         top: 0,
@@ -68,23 +63,29 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     }
 
     this.handleActiveTab = this.handleActiveTab.bind(this)
+
     this.handleEditorOnChange = this.handleEditorOnChange.bind(this)
+    this.handleBlockStyleChange = this.handleBlockStyleChange.bind(this)
+
     this.updateBlockPosition = this.updateBlockPosition.bind(this)
+    this.updateInlineStyle = this.updateInlineStyle.bind(this)
     this.focusEditor = () => setTimeout(() => this.editor.focus(), 0)
   }
 
   handleEditorOnChange (editorState) {
     const selection = editorState.getSelection()
     const inLineStyle = this.state.inLineStyle.toJS()
-    if (selection && !selection.isCollapsed()) {
-      const selectionRange = getSelectionRange()
-      const {offsetLeft, offsetTop} = getSelectionCoords(selectionRange, 'editor')
+    const selectionRange = getSelectionRange()
+    if (!selection.isCollapsed()) {
+      const coords = getSelectionCoords(selectionRange, 'editor')
 
       inLineStyle.show = true
-      inLineStyle.top = offsetTop
-      inLineStyle.left = offsetLeft
+      inLineStyle.top = (coords) ? coords.offsetTop : 0
+      inLineStyle.left = (coords) ? coords.offsetLeft : 0
     } else {
       inLineStyle.show = false
+      inLineStyle.top = 0
+      inLineStyle.left = 0
     }
     this.setState({
       editorState,
@@ -94,9 +95,20 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     )
   }
 
+  handleBlockStyleChange (e, dropdown) {
+    const { value } = dropdown
+    const { editorState } = this.state
+    this.handleEditorOnChange(
+      RichUtils.toggleBlockType(
+        editorState,
+        value
+      )
+    )
+  }
+
   updateBlockPosition () {
     const selectionRange = getSelectionRange()
-    let sideToolbarOffsetTop = 0
+    let sideToolbarOffsetTop = this.state.sideToolbarOffsetTop
     let selectedBlock
     if (selectionRange) {
       selectedBlock = getSelectedBlockElement(selectionRange)
@@ -106,7 +118,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
       const editorBounds = document.getElementById('editor').getBoundingClientRect()
       const blockBounds = selectedBlock.getBoundingClientRect()
 
-      sideToolbarOffsetTop = (blockBounds.bottom - editorBounds.top) - 31
+      sideToolbarOffsetTop = (blockBounds.bottom - editorBounds.top) - 30
     }
 
     this.setState({
@@ -114,6 +126,12 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
       selectionRange,
       sideToolbarOffsetTop
     })
+  }
+
+  updateInlineStyle (style) {
+    const { editorState } = this.state
+    this.handleEditorOnChange(RichUtils.toggleInlineStyle(editorState, style))
+    this.focusEditor()
   }
 
   handleActiveTab (activeTab, callback) {
@@ -135,6 +153,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     const contentState = editorState.getCurrentContent()
     const JSONEntity = JSON.stringify(convertToRaw(contentState), null, 2)
     const HTML = draftToHtml(convertToRaw(contentState))
+
     return (
       <Container>
         <Menu tabular>
@@ -165,17 +184,23 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
             {
               selectedBlock &&
               <BlockToolbar
+                blockOnChange={this.handleBlockStyleChange}
+                editorState={editorState}
                 top={sideToolbarOffsetTop}
               />
             }
             {
               show &&
-              <InlineToolbar top={top} left={left} />
+              <InlineToolbar
+                inLineStyle={this.updateInlineStyle}
+                top={top}
+                left={left}
+              />
             }
             <Editor
               editorState={editorState}
               onChange={this.handleEditorOnChange}
-              blockRenderMap={extBlockRenderMap}
+              blockRenderMap={blockRenderMap}
               ref={editor => { this.editor = editor }}
             />
           </EditorContainer>

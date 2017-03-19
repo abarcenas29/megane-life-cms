@@ -19,7 +19,7 @@ export function getSelectedBlockElement (range) {
 }
 
 export function getSelectionCoords (selectionRange, id) {
-  // if (!selectionRange) return null
+  if (!selectionRange) return null
 
   const editorBounds = document.getElementById(id).getBoundingClientRect()
   const rangeBounds = selectionRange.getBoundingClientRect()
