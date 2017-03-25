@@ -17,7 +17,6 @@ import {
   CompositeDecorator,
   Editor,
   EditorState,
-  Modifier,
   RichUtils,
   convertFromRaw,
   convertToRaw

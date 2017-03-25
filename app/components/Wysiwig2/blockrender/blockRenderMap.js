@@ -33,6 +33,15 @@ const blockRenderMap = Immutable.Map({
     element: 'header',
     wrapper: <Header h='h6' {...this.props} />
   },
+  'unordered-list-item': {
+    element: 'ul'
+  },
+  'ordered-list-item': {
+    element: 'ol'
+  },
+  'blockquote': {
+    element: 'ul'
+  },
   unstyled: {
     element: 'p'
   }

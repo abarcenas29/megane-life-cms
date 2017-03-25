@@ -3,12 +3,17 @@ import css from 'styled-components'
 
 import {
   Button,
+  Dropdown,
+  Grid,
   Icon,
+  Input,
   Label,
   Menu,
   Popup,
-  Dropdown
+  Segment
 } from 'semantic-ui-react'
+
+import ModalDefault from 'components/ModalDefault'
 
 const BlockButtonContainer = css.div`
   position: absolute;
@@ -68,19 +73,38 @@ export function BlockToolbar ({
               </Menu.Item>
               <Menu.Item
                 link
+                active={(blockType === 'ordered-list-item')}
                 onMouseDown={e => {
                   // this prevents the button to be in-focus
                   e.preventDefault()
                 }}
                 onClick={e => {
-                  e.stopImmediatePropagation()
+                  blockOnChange(e, {value: 'ordered-list-item'})
                 }}>
                 <Icon name='ordered list' color='orange' />
               </Menu.Item>
-              <Menu.Item link>
+              <Menu.Item
+                link
+                active={(blockType === 'unordered-list-item')}
+                onMouseDown={e => {
+                  // this prevents the button to be in-focus
+                  e.preventDefault()
+                }}
+                onClick={e => {
+                  blockOnChange(e, {value: 'unordered-list-item'})
+                }}>
                 <Icon name='unordered list' color='orange' />
               </Menu.Item>
-              <Menu.Item link>
+              <Menu.Item
+                link
+                active={(blockType === 'blockquote')}
+                onMouseDown={e => {
+                  // this prevents the button to be in-focus
+                  e.preventDefault()
+                }}
+                onClick={e => {
+                  blockOnChange(e, {value: 'blockquote'})
+                }}>
                 <Icon name='quote left' color='orange' />
               </Menu.Item>
             </Menu>
@@ -92,7 +116,13 @@ export function BlockToolbar ({
   )
 }
 
-export function InlineToolbar ({top, left, inLineStyle}) {
+export function InlineToolbar ({
+  top,
+  left,
+  inLineStyle,
+  handleInlineModal,
+  createEntity
+}) {
   return (
     <InlineToolbarContainer
       top={top}
@@ -134,10 +164,68 @@ export function InlineToolbar ({top, left, inLineStyle}) {
         </Button.Group>
         {'|'}
         <Button.Group color='orange'>
-          <Button icon='linkify' />
+          <Linkify
+            handleInlineModal={handleInlineModal}
+            createEntity={createEntity}
+          />
           <Button icon='unlinkify' />
         </Button.Group>
       </Label>
     </InlineToolbarContainer>
+  )
+}
+
+export function Linkify ({handleInlineModal, createEntity}) {
+  let url = ''
+  return (
+    <ModalDefault
+      header={'Attach Link'}
+      trigger={
+        <Button
+          onMouseDown={e => e.preventDefault()}
+          icon='linkify'
+        />
+      }
+      onOpen={() => {
+        handleInlineModal(true)
+      }}
+      onClose={() => {
+        handleInlineModal(false)
+      }}
+    >
+      <Grid>
+        <Grid.Row>
+          <Grid.Column stretched>
+            <label>URL Link</label>
+            <Input onChange={(e) => {
+              url = e.target.value
+            }} fluid />
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column stretched>
+            <label>Search Blog Link</label>
+            <Input fluid />
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column stretched>
+            <Segment padded />
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column computer={16}>
+            <Button
+              floated='right'
+              primary
+              onClick={() => createEntity('LINK', {url})}
+            >
+              <Icon name='save' />
+              Save
+            </Button>
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
+    </ModalDefault>
   )
 }

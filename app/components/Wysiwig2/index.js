@@ -9,10 +9,13 @@ import { fromJS } from 'immutable'
 import css from 'styled-components'
 import draftToHtml from 'draftjs-to-html'
 
+import decorators from './entities/decorators'
+
 import {
   Editor,
   EditorState,
   convertToRaw,
+  convertFromRaw,
   RichUtils
 } from 'draft-js'
 
@@ -46,13 +49,46 @@ const TextArea = css.textarea`
   min-height: 50em;
 `
 
+/** DEMO */
+
+const RawEntity = {
+  'entityMap': {
+    '0': {
+      'type': 'LINK',
+      'mutability': 'MUTABLE',
+      'data': {
+        'url': 'asdasd'
+      }
+    }
+  },
+  'blocks': [
+    {
+      'key': '9f8oa',
+      'text': 'saasd',
+      'type': 'unstyled',
+      'depth': 0,
+      'inlineStyleRanges': [],
+      'entityRanges': [
+        {
+          'offset': 0,
+          'length': 5,
+          'key': 0
+        }
+      ],
+      'data': {}
+    }
+  ]
+}
+
 class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless-function
   constructor (props) {
     super(props)
 
+    const blocks = convertFromRaw(RawEntity)
+
     this.state = {
       activeTab: 'editor',
-      editorState: EditorState.createEmpty(),
+      editorState: EditorState.createEmpty(decorators),
       readOnly: false,
       sideToolbarOffsetTop: 0,
       inLineStyle: fromJS({
@@ -66,9 +102,11 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
 
     this.handleEditorOnChange = this.handleEditorOnChange.bind(this)
     this.handleBlockStyleChange = this.handleBlockStyleChange.bind(this)
+    this.handleInlineModal = this.handleInlineModal.bind(this)
 
     this.updateBlockPosition = this.updateBlockPosition.bind(this)
     this.updateInlineStyle = this.updateInlineStyle.bind(this)
+    this.createEntity = this.createEntity.bind(this)
     this.focusEditor = () => setTimeout(() => this.editor.focus(), 0)
   }
 
@@ -134,10 +172,49 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     this.focusEditor()
   }
 
+  createEntity (entityName, data) {
+    const { editorState } = this.state
+    const contentState = editorState.getCurrentContent()
+
+    const contentStateWithEntity = contentState.createEntity(
+      entityName,
+      'MUTABLE',
+      data
+    )
+
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
+    const newEditorState = EditorState.set(editorState, {
+      currentContent: contentStateWithEntity
+    })
+
+    if (entityName === 'LINK') {
+      console.log(entityKey)
+      this.setState({
+        editorState: RichUtils.toggleLink(
+          newEditorState,
+          newEditorState.getSelection(),
+          entityKey
+        )
+      }, this.focusEditor)
+    } else {
+      this.setState({
+        editorState: newEditorState
+      }, this.focusEditor)
+    }
+  }
+
   handleActiveTab (activeTab, callback) {
     this.setState({
       activeTab
     }, callback)
+  }
+
+  handleInlineModal (readOnly) {
+    this.setState({readOnly}, () => {
+      if (!readOnly) {
+        this.focusEditor()
+      }
+    })
   }
 
   render () {
@@ -177,6 +254,12 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
             active={(activeTab === 'debug')}>
             Debug
           </Menu.Item>
+          <Menu.Item
+            link
+            onClick={() => this.handleActiveTab('debug-html')}
+            active={(activeTab === 'debug-html')}>
+            Debug HTML
+          </Menu.Item>
         </Menu>
         {
           activeTab === 'editor' &&
@@ -192,7 +275,9 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
             {
               show &&
               <InlineToolbar
+                handleInlineModal={this.handleInlineModal}
                 inLineStyle={this.updateInlineStyle}
+                createEntity={this.createEntity}
                 top={top}
                 left={left}
               />
@@ -202,6 +287,8 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
               onChange={this.handleEditorOnChange}
               blockRenderMap={blockRenderMap}
               ref={editor => { this.editor = editor }}
+              onFocus={() => this.setState({readOnly: false}, this.focusEditor)}
+              onBlur={() => this.setState({readOnly: true})}
             />
           </EditorContainer>
         }
@@ -212,6 +299,10 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
         {
           activeTab === 'debug' &&
           <TextArea value={JSONEntity} disabled />
+        }
+        {
+          activeTab === 'debug-html' &&
+          <pre>{HTML}</pre>
         }
       </Container>
     )
