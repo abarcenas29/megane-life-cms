@@ -40,7 +40,6 @@ export function BlockToolbar ({
     <BlockButtonContainer top={top}>
       <Button.Group
         color='orange'
-        basic
       >
         <Button icon='image' />
         <Popup
@@ -121,7 +120,8 @@ export function InlineToolbar ({
   left,
   inLineStyle,
   handleInlineModal,
-  createEntity
+  createEntity,
+  removeEntity
 }) {
   return (
     <InlineToolbarContainer
@@ -153,7 +153,11 @@ export function InlineToolbar ({
             onClick={() => inLineStyle('UNDERLINE')}
             icon='underline'
           />
-          <Button icon='strikethrough' />
+          <Button
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => inLineStyle('STRIKETHROUGH')}
+            icon='strikethrough'
+          />
           <Button
             onMouseDown={(e) => {
               e.preventDefault()
@@ -168,7 +172,11 @@ export function InlineToolbar ({
             handleInlineModal={handleInlineModal}
             createEntity={createEntity}
           />
-          <Button icon='unlinkify' />
+          <Button
+            onMouseDown={e => e.preventDefault()}
+            onClick={removeEntity}
+            icon='unlinkify'
+          />
         </Button.Group>
       </Label>
     </InlineToolbarContainer>

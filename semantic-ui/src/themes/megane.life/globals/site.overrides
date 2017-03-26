@@ -2,8 +2,32 @@
         Global Overrides
 *******************************/
 
-.article-body p {
-  line-height: 1.5;
-  margin-bottom: 1.5rem;
+.article-body {
+  font-size: 1rem;
   letter-spacing: 0.01rem;
+}
+
+.article-body p {
+  line-height: 2.0;
+  margin-bottom: 1.5em;
+  letter-spacing: 0.1em;
+}
+
+.article-body p a {
+  color: rgba(0, 0, 0, 0.87);
+  border-bottom: 1px solid #F2711C;
+}
+
+.article-body p a:hover {
+  color: #F2711C;
+  border-bottom: none;
+}
+
+.article-body blockquote {
+  border-left: 0.5em solid #F2711C;
+  letter-spacing: 0.1em;
+  line-height: 2.0;
+  margin-bottom: 1.5em;
+  margin-left: 0em;
+  padding-left: 1.5em;
 }

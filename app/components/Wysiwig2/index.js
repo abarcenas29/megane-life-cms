@@ -7,7 +7,7 @@
 import React, { Component } from 'react'
 import { fromJS } from 'immutable'
 import css from 'styled-components'
-import draftToHtml from 'draftjs-to-html'
+import { stateToHTML } from 'draft-js-export-html'
 
 import decorators from './entities/decorators'
 
@@ -107,6 +107,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     this.updateBlockPosition = this.updateBlockPosition.bind(this)
     this.updateInlineStyle = this.updateInlineStyle.bind(this)
     this.createEntity = this.createEntity.bind(this)
+    this.removeEntity = this.removeEntity.bind(this)
     this.focusEditor = () => setTimeout(() => this.editor.focus(), 0)
   }
 
@@ -188,7 +189,6 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     })
 
     if (entityName === 'LINK') {
-      console.log(entityKey)
       this.setState({
         editorState: RichUtils.toggleLink(
           newEditorState,
@@ -198,7 +198,21 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
       }, this.focusEditor)
     } else {
       this.setState({
-        editorState: newEditorState
+        editorState: RichUtils.toggleInlineStyle(
+          newEditorState,
+          entityKey
+        )
+      }, this.focusEditor)
+    }
+  }
+
+  removeEntity (e) {
+    e.preventDefault()
+    const { editorState } = this.state
+    const selection = editorState.getSelection()
+    if (!selection.isCollapsed()) {
+      this.setState({
+        editorState: RichUtils.toggleLink(editorState, selection, null)
       }, this.focusEditor)
     }
   }
@@ -229,7 +243,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
 
     const contentState = editorState.getCurrentContent()
     const JSONEntity = JSON.stringify(convertToRaw(contentState), null, 2)
-    const HTML = draftToHtml(convertToRaw(contentState))
+    const HTML = stateToHTML(contentState)
 
     return (
       <Container>
@@ -265,7 +279,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
           activeTab === 'editor' &&
           <EditorContainer className='article-body' id='editor'>
             {
-              selectedBlock &&
+              selectedBlock && !show &&
               <BlockToolbar
                 blockOnChange={this.handleBlockStyleChange}
                 editorState={editorState}
@@ -278,6 +292,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
                 handleInlineModal={this.handleInlineModal}
                 inLineStyle={this.updateInlineStyle}
                 createEntity={this.createEntity}
+                removeEntity={this.removeEntity}
                 top={top}
                 left={left}
               />

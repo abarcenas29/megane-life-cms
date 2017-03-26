@@ -2301,6 +2301,16 @@ download@^4.0.0, download@^4.1.2:
     vinyl-fs "^2.2.0"
     ware "^1.2.0"
 
+draft-js-export-html@0.5.2:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/draft-js-export-html/-/draft-js-export-html-0.5.2.tgz#089e55ce06d5aed0dbd9af5eee2eb56c58a1c428"
+  dependencies:
+    draft-js-utils "^0.1.5"
+
+draft-js-utils@^0.1.5:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/draft-js-utils/-/draft-js-utils-0.1.7.tgz#e2b6927ca620edf1855a4bfc1cf1d21080a70f16"
+
 draft-js@0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/draft-js/-/draft-js-0.10.0.tgz#29d16191012b932fdab28a9b37ec1538f421abf6"
@@ -2308,10 +2318,6 @@ draft-js@0.10.0:
     fbjs "^0.8.7"
     immutable "~3.7.4"
     object-assign "^4.1.0"
-
-draftjs-to-html@0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/draftjs-to-html/-/draftjs-to-html-0.7.0.tgz#22aaf9d40a1397b57c73fb0b0bde2b1fd6755456"
 
 draftjs-utils@^0.7.0:
   version "0.7.0"

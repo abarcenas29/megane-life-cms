@@ -8,11 +8,6 @@ const SpanPink = css.span`
   background-color: pink;
 `
 
-const LinkStyle = css.a`
-  color: pink;
-  background-color: blue;
-`
-
 const decorators = new CompositeDecorator([
   {
     strategy: entityStrategy('LINK'),
@@ -42,7 +37,7 @@ function entityStrategy (strategy) {
 function Link ({contentState, entityKey, children}) {
   const url = contentState.getEntity(entityKey).getData()
   return (
-    <LinkStyle href={url}>{children}</LinkStyle>
+    <a href={url}>{children}</a>
   )
 }
 
