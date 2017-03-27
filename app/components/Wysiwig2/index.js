@@ -10,12 +10,15 @@ import css from 'styled-components'
 import { stateToHTML } from 'draft-js-export-html'
 
 import decorators from './entities/decorators'
+import mediaBlockRender, {
+  mediaBlockRenderExport
+} from './blockrender/blockRenderFn'
 
 import {
+  AtomicBlockUtils,
   Editor,
   EditorState,
   convertToRaw,
-  convertFromRaw,
   RichUtils
 } from 'draft-js'
 
@@ -49,42 +52,9 @@ const TextArea = css.textarea`
   min-height: 50em;
 `
 
-/** DEMO */
-
-const RawEntity = {
-  'entityMap': {
-    '0': {
-      'type': 'LINK',
-      'mutability': 'MUTABLE',
-      'data': {
-        'url': 'asdasd'
-      }
-    }
-  },
-  'blocks': [
-    {
-      'key': '9f8oa',
-      'text': 'saasd',
-      'type': 'unstyled',
-      'depth': 0,
-      'inlineStyleRanges': [],
-      'entityRanges': [
-        {
-          'offset': 0,
-          'length': 5,
-          'key': 0
-        }
-      ],
-      'data': {}
-    }
-  ]
-}
-
 class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless-function
   constructor (props) {
     super(props)
-
-    const blocks = convertFromRaw(RawEntity)
 
     this.state = {
       activeTab: 'editor',
@@ -108,6 +78,8 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     this.updateInlineStyle = this.updateInlineStyle.bind(this)
     this.createEntity = this.createEntity.bind(this)
     this.removeEntity = this.removeEntity.bind(this)
+
+    this.createAtomicBlock = this.createAtomicBlock.bind(this)
     this.focusEditor = () => setTimeout(() => this.editor.focus(), 0)
   }
 
@@ -200,7 +172,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
       this.setState({
         editorState: RichUtils.toggleInlineStyle(
           newEditorState,
-          entityKey
+          entityName
         )
       }, this.focusEditor)
     }
@@ -215,6 +187,31 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
         editorState: RichUtils.toggleLink(editorState, selection, null)
       }, this.focusEditor)
     }
+  }
+
+  createAtomicBlock (entityName, data) {
+    const { editorState } = this.state
+    const contentState = editorState.getCurrentContent()
+
+    const contentStateWithEntity = contentState.createEntity(
+      entityName,
+      'IMMUTABLE',
+      data
+    )
+
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
+    const newEditorState = EditorState.set(
+      editorState,
+      {currentContent: contentStateWithEntity}
+    )
+
+    this.setState({
+      editorState: AtomicBlockUtils.insertAtomicBlock(
+        newEditorState,
+        entityKey,
+        ' '
+      )
+    }, this.focusEditor)
   }
 
   handleActiveTab (activeTab, callback) {
@@ -283,6 +280,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
               <BlockToolbar
                 blockOnChange={this.handleBlockStyleChange}
                 editorState={editorState}
+                createAtomicBlock={this.createAtomicBlock}
                 top={sideToolbarOffsetTop}
               />
             }
@@ -300,6 +298,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
             <Editor
               editorState={editorState}
               onChange={this.handleEditorOnChange}
+              blockRendererFn={mediaBlockRender}
               blockRenderMap={blockRenderMap}
               ref={editor => { this.editor = editor }}
               onFocus={() => this.setState({readOnly: false}, this.focusEditor)}

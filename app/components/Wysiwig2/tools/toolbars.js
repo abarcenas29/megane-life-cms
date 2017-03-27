@@ -30,7 +30,8 @@ const InlineToolbarContainer = css.div`
 export function BlockToolbar ({
   top,
   editorState,
-  blockOnChange
+  blockOnChange,
+  createAtomicBlock
 }) {
   const selection = editorState.getSelection()
   const blockType = editorState.getCurrentContent()
@@ -106,6 +107,18 @@ export function BlockToolbar ({
                 }}>
                 <Icon name='quote left' color='orange' />
               </Menu.Item>
+              <Menu.Item
+                link
+                onMouseDown={e => {
+                  // this prevents the button to be in-focus
+                  e.preventDefault()
+                }}
+                onClick={e => {
+                  e.preventDefault()
+                  createAtomicBlock('QUOTE', {quote: 'this is a quote'})
+                }}>
+                <Icon name='square outline' color='orange' />
+              </Menu.Item>
             </Menu>
           </Popup.Content>
         </Popup>
@@ -177,6 +190,11 @@ export function InlineToolbar ({
             onClick={removeEntity}
             icon='unlinkify'
           />
+          <Button
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => createEntity('QUOTE', {quote: 'this is a quote'})}
+            icon='square outline'
+          />
         </Button.Group>
       </Label>
     </InlineToolbarContainer>
@@ -194,12 +212,8 @@ export function Linkify ({handleInlineModal, createEntity}) {
           icon='linkify'
         />
       }
-      onOpen={() => {
-        handleInlineModal(true)
-      }}
-      onClose={() => {
-        handleInlineModal(false)
-      }}
+      onOpen={() => handleInlineModal(true)}
+      onClose={() => handleInlineModal(false)}
     >
       <Grid>
         <Grid.Row>
@@ -226,8 +240,7 @@ export function Linkify ({handleInlineModal, createEntity}) {
             <Button
               floated='right'
               primary
-              onClick={() => createEntity('LINK', {url})}
-            >
+              onClick={() => createEntity('LINK', {url})}>
               <Icon name='save' />
               Save
             </Button>

@@ -42,6 +42,9 @@ const blockRenderMap = Immutable.Map({
   'blockquote': {
     element: 'blockquote'
   },
+  atomic: {
+    element: 'section'
+  },
   unstyled: {
     element: 'p'
   }

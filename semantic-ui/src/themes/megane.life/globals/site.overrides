@@ -2,32 +2,44 @@
         Global Overrides
 *******************************/
 
+@orangeColor: #F2711C;
+
+.paragraph-compose {
+  letter-spacing: 0.1em;
+  line-height: 2.0;
+  margin-bottom: 1.5em;
+}
+
 .article-body {
   font-size: 1rem;
   letter-spacing: 0.01rem;
 }
 
 .article-body p {
-  line-height: 2.0;
-  margin-bottom: 1.5em;
-  letter-spacing: 0.1em;
+  .paragraph-compose();
 }
 
 .article-body p a {
   color: rgba(0, 0, 0, 0.87);
-  border-bottom: 1px solid #F2711C;
+  border-bottom: 1px solid @orangeColor;
 }
 
 .article-body p a:hover {
-  color: #F2711C;
+  color: @orangeColor;
   border-bottom: none;
 }
 
 .article-body blockquote {
-  border-left: 0.5em solid #F2711C;
-  letter-spacing: 0.1em;
-  line-height: 2.0;
-  margin-bottom: 1.5em;
+  border-left: 0.5em solid @orangeColor;
   margin-left: 0em;
   padding-left: 1.5em;
+  .paragraph-compose();
+}
+
+.article-body .quotebox {
+  border-top: 0.5em solid @orangeColor;
+  border-bottom: 0.5em solid @orangeColor;
+  width: 50%;
+  float: right;
+  .paragraph-compose();
 }

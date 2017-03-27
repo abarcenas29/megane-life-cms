@@ -1,17 +1,20 @@
-import React from 'react'
-import css from 'styled-components'
+import {
+  Link,
+  QuoteBox
+} from './entityHTML.js'
+
 import {
   CompositeDecorator
 } from 'draft-js'
-
-const SpanPink = css.span`
-  background-color: pink;
-`
 
 const decorators = new CompositeDecorator([
   {
     strategy: entityStrategy('LINK'),
     component: Link
+  },
+  {
+    strategy: entityStrategy('QUOTE'),
+    component: QuoteBox
   }
 ])
 
@@ -20,7 +23,6 @@ export default decorators
 /**
  * Dependent Functions
  * */
-
 function entityStrategy (strategy) {
   return function (contentBlock, callback, contentState) {
     contentBlock.findEntityRanges(
@@ -32,15 +34,4 @@ function entityStrategy (strategy) {
       callback
     )
   }
-}
-
-function Link ({contentState, entityKey, children}) {
-  const url = contentState.getEntity(entityKey).getData()
-  return (
-    <a href={url}>{children}</a>
-  )
-}
-
-function SpanColor ({children}) {
-  return <SpanPink>{children}</SpanPink>
 }
