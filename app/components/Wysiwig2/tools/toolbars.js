@@ -31,7 +31,7 @@ export function BlockToolbar ({
   top,
   editorState,
   blockOnChange,
-  createAtomicBlock
+  handleQuoteBoxModal
 }) {
   const selection = editorState.getSelection()
   const blockType = editorState.getCurrentContent()
@@ -109,15 +109,10 @@ export function BlockToolbar ({
               </Menu.Item>
               <Menu.Item
                 link
-                onMouseDown={e => {
-                  // this prevents the button to be in-focus
-                  e.preventDefault()
-                }}
-                onClick={e => {
-                  e.preventDefault()
-                  createAtomicBlock('QUOTE', {quote: 'this is a quote'})
-                }}>
-                <Icon name='square outline' color='orange' />
+                onMouseDown={e => e.preventDefault()}
+                onClick={e => handleQuoteBoxModal(true)}
+              >
+                <Icon color='orange' name='square outline' />
               </Menu.Item>
             </Menu>
           </Popup.Content>

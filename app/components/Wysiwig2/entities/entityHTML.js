@@ -1,4 +1,17 @@
 import React from 'react'
+import css from 'styled-components'
+
+import {
+  Rail,
+  Button
+} from 'semantic-ui-react'
+
+const QuoteBoxContainer = css.div`
+  float: ${props => props.align};
+  width: ${props => `${props.width}%`}
+  margin: 1em;
+  position: relative;
+`
 
 export function Link ({contentState, entityKey, children}) {
   const url = contentState.getEntity(entityKey).getData()
@@ -14,15 +27,23 @@ export function QuoteBox ({contentState, block, ...props}) {
 
   const data = entity.getData()
   const type = entity.getType()
+  const {alignment, widthRange, quote} = data
 
-  console.log(data)
-  console.log(entity.toJS())
   console.log(type)
   console.log(props)
 
+  console.log('I am clicked')
+
   return (
-    <div className='quotebox'>
-      <p>This is a quote box</p>
-    </div>
+    <QuoteBoxContainer
+      align={alignment}
+      width={widthRange}
+      className='quotebox'
+    >
+      <Rail position={alignment}>
+        <Button icon='trash' />
+      </Rail>
+      <p>{quote}</p>
+    </QuoteBoxContainer>
   )
 }

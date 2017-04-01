@@ -39,7 +39,9 @@
 .article-body .quotebox {
   border-top: 0.5em solid @orangeColor;
   border-bottom: 0.5em solid @orangeColor;
-  width: 50%;
-  float: right;
   .paragraph-compose();
+}
+
+.article-body figure {
+  display: block;
 }

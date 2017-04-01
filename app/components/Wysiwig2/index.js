@@ -39,6 +39,8 @@ import {
 
 import blockRenderMap from './blockrender/blockRenderMap'
 
+import ModalQuoteBoxSettings from './tools/modals/QuoteBox'
+
 const Container = css.div`
   display: flex;
   flex-direction: column;
@@ -61,6 +63,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
       editorState: EditorState.createEmpty(decorators),
       readOnly: false,
       sideToolbarOffsetTop: 0,
+      quoteBoxModalState: false,
       inLineStyle: fromJS({
         show: false,
         top: 0,
@@ -73,11 +76,15 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     this.handleEditorOnChange = this.handleEditorOnChange.bind(this)
     this.handleBlockStyleChange = this.handleBlockStyleChange.bind(this)
     this.handleInlineModal = this.handleInlineModal.bind(this)
+    this.handleKeyCommand = this.handleKeyCommand.bind(this)
 
     this.updateBlockPosition = this.updateBlockPosition.bind(this)
     this.updateInlineStyle = this.updateInlineStyle.bind(this)
     this.createEntity = this.createEntity.bind(this)
     this.removeEntity = this.removeEntity.bind(this)
+
+    // Entity Controls
+    this.handleQuoteBoxModal = this.handleQuoteBoxModal.bind(this)
 
     this.createAtomicBlock = this.createAtomicBlock.bind(this)
     this.focusEditor = () => setTimeout(() => this.editor.focus(), 0)
@@ -87,6 +94,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     const selection = editorState.getSelection()
     const inLineStyle = this.state.inLineStyle.toJS()
     const selectionRange = getSelectionRange()
+
     if (!selection.isCollapsed()) {
       const coords = getSelectionCoords(selectionRange, 'editor')
 
@@ -98,6 +106,12 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
       inLineStyle.top = 0
       inLineStyle.left = 0
     }
+
+    /** Debug */
+    const contentState = editorState.getCurrentContent()
+    console.log('current editor state', contentState.toJS())
+    console.log('current entity map', contentState.getEntityMap())
+
     this.setState({
       editorState,
       inLineStyle: fromJS(inLineStyle)
@@ -228,6 +242,25 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     })
   }
 
+  handleKeyCommand (command) {
+    const { editorState } = this.state
+    const newState = RichUtils.handleKeyCommand(editorState, command)
+    if (newState) {
+      this.handleEditorOnChange(newState)
+      return true
+    }
+    return false
+  }
+
+  /**
+   * Entity Controls
+   */
+  handleQuoteBoxModal (status) {
+    this.setState({
+      quoteBoxModalState: status
+    })
+  }
+
   render () {
     const {
       activeTab,
@@ -280,7 +313,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
               <BlockToolbar
                 blockOnChange={this.handleBlockStyleChange}
                 editorState={editorState}
-                createAtomicBlock={this.createAtomicBlock}
+                handleQuoteBoxModal={this.handleQuoteBoxModal}
                 top={sideToolbarOffsetTop}
               />
             }
@@ -300,6 +333,8 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
               onChange={this.handleEditorOnChange}
               blockRendererFn={mediaBlockRender}
               blockRenderMap={blockRenderMap}
+              handleKeyCommand={this.handleKeyCommand}
+              spellCheck
               ref={editor => { this.editor = editor }}
               onFocus={() => this.setState({readOnly: false}, this.focusEditor)}
               onBlur={() => this.setState({readOnly: true})}
@@ -318,6 +353,12 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
           activeTab === 'debug-html' &&
           <pre>{HTML}</pre>
         }
+
+        <ModalQuoteBoxSettings
+          open={this.state.quoteBoxModalState}
+          onClose={() => this.handleQuoteBoxModal(false)}
+          createAtomicBlock={this.createAtomicBlock}
+        />
       </Container>
     )
   }
