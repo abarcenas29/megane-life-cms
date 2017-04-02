@@ -28,10 +28,12 @@ const InlineToolbarContainer = css.div`
 `
 
 export function BlockToolbar ({
-  top,
-  editorState,
   blockOnChange,
-  handleQuoteBoxModal
+  editorState,
+  entityToolBox,
+  entityType,
+  handleEntityModals,
+  top
 }) {
   const selection = editorState.getSelection()
   const blockType = editorState.getCurrentContent()
@@ -41,84 +43,30 @@ export function BlockToolbar ({
     <BlockButtonContainer top={top}>
       <Button.Group
         color='orange'
+        style={{display: 'block'}}
       >
         <Button icon='image' />
-        <Popup
-          trigger={<Button icon='bars' />}
-          hideOnScroll
-          hoverable
-          position='top right'
-        >
-          <Popup.Content>
-            <Menu compact size='small' secondary>
-              <Menu.Item>
-                <Dropdown
-                  placeholder='Paragraph'
-                  simple
-                  selection
-                  defaultValue={blockType}
-                  scrolling
-                  onChange={blockOnChange}
-                  onMouseDown={e => e.preventDefault()}
-                  options={[
-                    {text: 'Heading 1', value: 'header-one'},
-                    {text: 'Heading 2', value: 'header-two'},
-                    {text: 'Heading 3', value: 'header-three'},
-                    {text: 'Heading 4', value: 'header-four'},
-                    {text: 'Heading 5', value: 'header-five'},
-                    {text: 'Heading 6', value: 'header-six'},
-                    {text: 'Default', value: 'unstyled'}
-                  ]}
-                />
-              </Menu.Item>
-              <Menu.Item
-                link
-                active={(blockType === 'ordered-list-item')}
-                onMouseDown={e => {
-                  // this prevents the button to be in-focus
-                  e.preventDefault()
-                }}
-                onClick={e => {
-                  blockOnChange(e, {value: 'ordered-list-item'})
-                }}>
-                <Icon name='ordered list' color='orange' />
-              </Menu.Item>
-              <Menu.Item
-                link
-                active={(blockType === 'unordered-list-item')}
-                onMouseDown={e => {
-                  // this prevents the button to be in-focus
-                  e.preventDefault()
-                }}
-                onClick={e => {
-                  blockOnChange(e, {value: 'unordered-list-item'})
-                }}>
-                <Icon name='unordered list' color='orange' />
-              </Menu.Item>
-              <Menu.Item
-                link
-                active={(blockType === 'blockquote')}
-                onMouseDown={e => {
-                  // this prevents the button to be in-focus
-                  e.preventDefault()
-                }}
-                onClick={e => {
-                  blockOnChange(e, {value: 'blockquote'})
-                }}>
-                <Icon name='quote left' color='orange' />
-              </Menu.Item>
-              <Menu.Item
-                link
-                onMouseDown={e => e.preventDefault()}
-                onClick={e => handleQuoteBoxModal(true)}
-              >
-                <Icon color='orange' name='square outline' />
-              </Menu.Item>
-            </Menu>
-          </Popup.Content>
-        </Popup>
-
+        <BlockToolOptions
+          blockType={blockType}
+          blockOnChange={blockOnChange}
+          handleEntityModals={handleEntityModals}
+        />
       </Button.Group>
+      {
+        entityToolBox &&
+        <Button.Group>
+          <Button
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => {
+              switch (entityType) {
+                case 'QUOTE':
+                  handleEntityModals('quoteBoxModalState', true)
+                  break
+              }
+            }}
+            icon='cogs' />
+        </Button.Group>
+      }
     </BlockButtonContainer>
   )
 }
@@ -193,6 +141,90 @@ export function InlineToolbar ({
         </Button.Group>
       </Label>
     </InlineToolbarContainer>
+  )
+}
+
+function BlockToolOptions ({
+  blockType,
+  blockOnChange,
+  handleEntityModals,
+  ...props
+}) {
+  return (
+    <Popup
+      trigger={<Button icon='bars' />}
+      hideOnScroll
+      hoverable
+      position='top right'
+    >
+      <Popup.Content>
+        <Menu compact size='small' secondary>
+          <Menu.Item>
+            <Dropdown
+              placeholder='Paragraph'
+              simple
+              selection
+              defaultValue={blockType}
+              scrolling
+              onChange={blockOnChange}
+              onMouseDown={e => e.preventDefault()}
+              options={[
+                {text: 'Heading 1', value: 'header-one'},
+                {text: 'Heading 2', value: 'header-two'},
+                {text: 'Heading 3', value: 'header-three'},
+                {text: 'Heading 4', value: 'header-four'},
+                {text: 'Heading 5', value: 'header-five'},
+                {text: 'Heading 6', value: 'header-six'},
+                {text: 'Default', value: 'unstyled'}
+              ]}
+            />
+          </Menu.Item>
+          <Menu.Item
+            link
+            active={(blockType === 'ordered-list-item')}
+            onMouseDown={e => {
+              // this prevents the button to be in-focus
+              e.preventDefault()
+            }}
+            onClick={e => {
+              blockOnChange(e, {value: 'ordered-list-item'})
+            }}>
+            <Icon name='ordered list' color='orange' />
+          </Menu.Item>
+          <Menu.Item
+            link
+            active={(blockType === 'unordered-list-item')}
+            onMouseDown={e => {
+              // this prevents the button to be in-focus
+              e.preventDefault()
+            }}
+            onClick={e => {
+              blockOnChange(e, {value: 'unordered-list-item'})
+            }}>
+            <Icon name='unordered list' color='orange' />
+          </Menu.Item>
+          <Menu.Item
+            link
+            active={(blockType === 'blockquote')}
+            onMouseDown={e => {
+              // this prevents the button to be in-focus
+              e.preventDefault()
+            }}
+            onClick={e => {
+              blockOnChange(e, {value: 'blockquote'})
+            }}>
+            <Icon name='quote left' color='orange' />
+          </Menu.Item>
+          <Menu.Item
+            link
+            onMouseDown={e => e.preventDefault()}
+            onClick={e => handleEntityModals('quoteBoxModalState', true)}
+          >
+            <Icon color='orange' name='square outline' />
+          </Menu.Item>
+        </Menu>
+      </Popup.Content>
+    </Popup>
   )
 }
 

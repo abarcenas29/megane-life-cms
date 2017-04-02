@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import css from 'styled-components'
+import _ from 'lodash'
 
 import ModalDefault from 'components/ModalDefault'
 
@@ -22,13 +23,23 @@ class ModalQuoteBoxSettings extends Component {
 
     this.state = {
       widthRange: 50,
-      alignment: 'center',
+      alignment: 'left',
       quote: 'put your quote here'
     }
 
     this.handleWidthRange = this.handleWidthRange.bind(this)
     this.handleAlignmentChange = this.handleAlignmentChange.bind(this)
     this.handleQuoteTextChange = this.handleQuoteTextChange.bind(this)
+    this.handleSave = this.handleSave.bind(this)
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (!_.isEmpty(nextProps.entityData)) {
+      const entityData = nextProps.entityData
+      this.setState({
+        ...entityData
+      })
+    }
   }
 
   handleQuoteTextChange (value) {
@@ -49,8 +60,18 @@ class ModalQuoteBoxSettings extends Component {
     })
   }
 
+  handleSave () {
+    const entityData = this.props.entityData
+    if (!_.isEmpty(entityData)) {
+      this.props.editAtomicBlock(this.state)
+    } else {
+      const { alignment, widthRange, quote } = this.state
+      this.props.createAtomicBlock('QUOTE', {alignment, widthRange, quote})
+    }
+  }
+
   render () {
-    const {createAtomicBlock, ...props} = this.props
+    const { onClose, open } = this.props
     const { alignment, widthRange, quote } = this.state
     return (
       <ModalDefault
@@ -64,12 +85,14 @@ class ModalQuoteBoxSettings extends Component {
           </Header>
         }
         size='small'
-        {...props}
+        onClose={onClose}
+        open={open}
       >
         <Grid>
           <Grid.Column computer={16}>
             <Label>Quote Text</Label>
             <Input
+              value={quote}
               onChange={(e, props) => {
                 this.handleQuoteTextChange(props.value)
               }}
@@ -87,12 +110,6 @@ class ModalQuoteBoxSettings extends Component {
               />
               <Button
                 onMouseDown={e => e.preventDefault()}
-                onClick={() => this.handleAlignmentChange('center')}
-                active={(alignment === 'center')}
-                icon='align center'
-              />
-              <Button
-                onMouseDown={e => e.preventDefault()}
                 onClick={() => this.handleAlignmentChange('right')}
                 active={(alignment === 'right')}
                 icon='align right' />
@@ -105,20 +122,17 @@ class ModalQuoteBoxSettings extends Component {
               min={0}
               max={100}
               step={1}
+              value={widthRange}
               onChange={(e, props) => this.handleWidthRange(props.value)}
             />
           </Grid.Column>
           <Grid.Column computer={16}>
-            <Button negative>
-              <Icon name='trash' />
-              Delete
-            </Button>
             <Button
               basic
               floated='right'
               color='orange'
               onMouseDown={e => e.preventDefault()}
-              onClick={() => createAtomicBlock('QUOTE', {alignment, widthRange, quote})}
+              onClick={this.handleSave}
             >
               <Icon name='save' />
               Save

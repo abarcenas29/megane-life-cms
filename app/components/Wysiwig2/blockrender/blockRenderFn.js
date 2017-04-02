@@ -10,14 +10,4 @@ function mediaBlockRender (block) {
   return null
 }
 
-export function mediaBlockRenderExport () {
-  return {
-    atomic: block => {
-      let data = block.getData()
-      console.log(data)
-      return QuoteBox
-    }
-  }
-}
-
 export default mediaBlockRender

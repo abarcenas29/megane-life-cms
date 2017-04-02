@@ -10,16 +10,15 @@ import css from 'styled-components'
 import { stateToHTML } from 'draft-js-export-html'
 
 import decorators from './entities/decorators'
-import mediaBlockRender, {
-  mediaBlockRenderExport
-} from './blockrender/blockRenderFn'
+import mediaBlockRender from './blockrender/blockRenderFn'
 
 import {
   AtomicBlockUtils,
   Editor,
   EditorState,
-  convertToRaw,
-  RichUtils
+  Modifier,
+  RichUtils,
+  convertToRaw
 } from 'draft-js'
 
 import {
@@ -68,12 +67,18 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
         show: false,
         top: 0,
         left: 0
-      })
+      }),
+      entityToolBox: false,
+      entityName: '',
+      entityData: {},
+      entityInstance: null
     }
 
     this.handleActiveTab = this.handleActiveTab.bind(this)
 
     this.handleEditorOnChange = this.handleEditorOnChange.bind(this)
+    this.handleInlineToolbar = this.handleInlineToolbar.bind(this)
+    this.handleEntityToolbar = this.handleEntityToolbar.bind(this)
     this.handleBlockStyleChange = this.handleBlockStyleChange.bind(this)
     this.handleInlineModal = this.handleInlineModal.bind(this)
     this.handleKeyCommand = this.handleKeyCommand.bind(this)
@@ -84,13 +89,26 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     this.removeEntity = this.removeEntity.bind(this)
 
     // Entity Controls
-    this.handleQuoteBoxModal = this.handleQuoteBoxModal.bind(this)
+    this.handleEntityModals = this.handleEntityModals.bind(this)
 
     this.createAtomicBlock = this.createAtomicBlock.bind(this)
+    this.editAtomicBlock = this.editAtomicBlock.bind(this)
+    // this.removeAtomicBlock = this.removeAtomicBlock.bind(this)
     this.focusEditor = () => setTimeout(() => this.editor.focus(), 0)
   }
 
   handleEditorOnChange (editorState) {
+    this.handleInlineToolbar(editorState)
+    this.handleEntityToolbar(editorState)
+
+    this.setState({
+      editorState
+    },
+      this.updateBlockPosition
+    )
+  }
+
+  handleInlineToolbar (editorState) {
     const selection = editorState.getSelection()
     const inLineStyle = this.state.inLineStyle.toJS()
     const selectionRange = getSelectionRange()
@@ -107,17 +125,37 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
       inLineStyle.left = 0
     }
 
-    /** Debug */
-    const contentState = editorState.getCurrentContent()
-    console.log('current editor state', contentState.toJS())
-    console.log('current entity map', contentState.getEntityMap())
-
     this.setState({
-      editorState,
       inLineStyle: fromJS(inLineStyle)
-    },
-      this.updateBlockPosition
-    )
+    })
+  }
+
+  handleEntityToolbar (editorState) {
+    const selectionState = editorState.getSelection()
+    const contentState = editorState.getCurrentContent()
+    const blockKey = selectionState.getStartKey()
+
+    const contentBlock = contentState.getBlockForKey(blockKey)
+
+    if (contentBlock.getEntityAt(0) !== null) {
+      const entity = contentState.getEntity(contentBlock.getEntityAt(0))
+      const data = entity.getData()
+      const type = entity.getType()
+
+      this.setState({
+        entityToolBox: true,
+        entityData: data,
+        entityName: type,
+        entityKey: contentBlock.getEntityAt(0)
+      })
+    } else {
+      this.setState({
+        entityToolBox: false,
+        entityData: {},
+        entityName: '',
+        entityKey: null
+      })
+    }
   }
 
   handleBlockStyleChange (e, dropdown) {
@@ -228,6 +266,38 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     }, this.focusEditor)
   }
 
+  editAtomicBlock (state) {
+    const contentState = this.state.editorState.getCurrentContent()
+    const { entityKey } = this.state
+
+    contentState.mergeEntityData(
+      entityKey,
+      { ...state }
+    )
+  }
+
+  removeAtomicBlock () {
+    /**
+     * This function doesn't work. Will need to revisit later.
+     */
+    const { editorState } = this.state
+    const selectionState = editorState.getSelection()
+
+    const contentState = editorState.getCurrentContent()
+
+    const newContentState = Modifier.applyEntity(
+      contentState,
+      selectionState,
+      null
+    )
+
+    const newEditorState = EditorState.set(
+      this.state.editorState,
+      {currentContent: newContentState}
+    )
+    this.handleEditorOnChange(newEditorState)
+  }
+
   handleActiveTab (activeTab, callback) {
     this.setState({
       activeTab
@@ -255,9 +325,11 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
   /**
    * Entity Controls
    */
-  handleQuoteBoxModal (status) {
+  handleEntityModals (modal, status) {
+    const state = {}
+    state[modal] = status
     this.setState({
-      quoteBoxModalState: status
+      ...state
     })
   }
 
@@ -313,7 +385,9 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
               <BlockToolbar
                 blockOnChange={this.handleBlockStyleChange}
                 editorState={editorState}
-                handleQuoteBoxModal={this.handleQuoteBoxModal}
+                entityToolBox={this.state.entityToolBox}
+                entityType={this.state.entityName}
+                handleEntityModals={this.handleEntityModals}
                 top={sideToolbarOffsetTop}
               />
             }
@@ -356,7 +430,9 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
 
         <ModalQuoteBoxSettings
           open={this.state.quoteBoxModalState}
-          onClose={() => this.handleQuoteBoxModal(false)}
+          onClose={() => this.handleEntityModals('quoteBoxModalState', false)}
+          entityData={this.state.entityData}
+          editAtomicBlock={this.editAtomicBlock}
           createAtomicBlock={this.createAtomicBlock}
         />
       </Container>
