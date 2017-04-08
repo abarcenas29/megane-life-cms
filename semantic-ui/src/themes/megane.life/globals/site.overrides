@@ -42,6 +42,10 @@
   .paragraph-compose();
 }
 
+.article-body .quotebox > p {
+  margin: 1em;
+}
+
 .article-body figure {
   display: block;
 }

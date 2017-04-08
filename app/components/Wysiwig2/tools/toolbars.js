@@ -4,16 +4,13 @@ import css from 'styled-components'
 import {
   Button,
   Dropdown,
-  Grid,
   Icon,
-  Input,
   Label,
-  Menu,
   Popup,
-  Segment
+  Menu
 } from 'semantic-ui-react'
 
-import ModalDefault from 'components/ModalDefault'
+import Linkify from './modals/Linkify'
 
 const BlockButtonContainer = css.div`
   position: absolute;
@@ -77,8 +74,10 @@ export function InlineToolbar ({
   inLineStyle,
   handleInlineModal,
   createEntity,
-  removeEntity
+  removeEntity,
+  entityData
 }) {
+  console.log('rendered entity data', entityData)
   return (
     <InlineToolbarContainer
       top={top}
@@ -127,6 +126,7 @@ export function InlineToolbar ({
           <Linkify
             handleInlineModal={handleInlineModal}
             createEntity={createEntity}
+            entityData={entityData}
           />
           <Button
             onMouseDown={e => e.preventDefault()}
@@ -225,55 +225,5 @@ function BlockToolOptions ({
         </Menu>
       </Popup.Content>
     </Popup>
-  )
-}
-
-export function Linkify ({handleInlineModal, createEntity}) {
-  let url = ''
-  return (
-    <ModalDefault
-      header={'Attach Link'}
-      trigger={
-        <Button
-          onMouseDown={e => e.preventDefault()}
-          icon='linkify'
-        />
-      }
-      onOpen={() => handleInlineModal(true)}
-      onClose={() => handleInlineModal(false)}
-    >
-      <Grid>
-        <Grid.Row>
-          <Grid.Column stretched>
-            <label>URL Link</label>
-            <Input onChange={(e) => {
-              url = e.target.value
-            }} fluid />
-          </Grid.Column>
-        </Grid.Row>
-        <Grid.Row>
-          <Grid.Column stretched>
-            <label>Search Blog Link</label>
-            <Input fluid />
-          </Grid.Column>
-        </Grid.Row>
-        <Grid.Row>
-          <Grid.Column stretched>
-            <Segment padded />
-          </Grid.Column>
-        </Grid.Row>
-        <Grid.Row>
-          <Grid.Column computer={16}>
-            <Button
-              floated='right'
-              primary
-              onClick={() => createEntity('LINK', {url})}>
-              <Icon name='save' />
-              Save
-            </Button>
-          </Grid.Column>
-        </Grid.Row>
-      </Grid>
-    </ModalDefault>
   )
 }

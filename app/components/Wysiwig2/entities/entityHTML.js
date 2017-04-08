@@ -1,17 +1,57 @@
 import React from 'react'
 import css from 'styled-components'
+import aniListImage from 'images/aniList.png'
 
-const QuoteBoxContainer = css.div`
-  float: ${props => props.align};
-  width: ${props => `${props.width}%`}
-  margin: 1em;
-  position: relative;
+import {
+  Icon,
+  Image
+} from 'semantic-ui-react'
+
+import {
+  QuoteBoxContainer,
+  QuoteBoxParagraph
+} from './styles'
+
+const LinkStyle = css.a`
+  display: inline;
+  text-decoration-style: ''
 `
 
 export function Link ({contentState, entityKey, children}) {
-  const url = contentState.getEntity(entityKey).getData()
+  const {url, type} = contentState
+    .getEntity(entityKey)
+    .getData()
+
+  let iconName = null
+  let decorationStyle = 'underline'
+  switch (type) {
+    case 'aniList':
+      decorationStyle = 'dashed'
+      break
+    case 'inside-link':
+      iconName = 'linkify'
+      break
+    case 'twitter':
+      iconName = 'twitter'
+      break
+    case 'facebook':
+      iconName = 'facebook'
+      break
+    case 'outside-link':
+      iconName = 'globe'
+      break
+  }
+
   return (
-    <a href={url}>{children}</a>
+    <span>
+      {
+        iconName !== 'aniList' &&
+        <Icon name={iconName} />
+      }
+      <LinkStyle linkStyle={decorationStyle} href={url}>
+        {children}
+      </LinkStyle>
+    </span>
   )
 }
 
@@ -29,7 +69,7 @@ export function QuoteBox ({contentState, block, ...props}) {
       width={widthRange}
       className='quotebox'
     >
-      <p>{quote}</p>
+      <QuoteBoxParagraph>{quote}</QuoteBoxParagraph>
     </QuoteBoxContainer>
   )
 }

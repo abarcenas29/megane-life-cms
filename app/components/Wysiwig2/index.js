@@ -70,7 +70,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
       }),
       entityToolBox: false,
       entityName: '',
-      entityData: {},
+      entityData: fromJS({}),
       entityInstance: null
     }
 
@@ -144,14 +144,14 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
 
       this.setState({
         entityToolBox: true,
-        entityData: data,
+        entityData: fromJS(data),
         entityName: type,
         entityKey: contentBlock.getEntityAt(0)
       })
     } else {
       this.setState({
         entityToolBox: false,
-        entityData: {},
+        entityData: fromJS({}),
         entityName: '',
         entityKey: null
       })
@@ -337,6 +337,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
     const {
       activeTab,
       editorState,
+      entityData,
       inLineStyle,
       selectedBlock,
       sideToolbarOffsetTop
@@ -394,6 +395,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
             {
               show &&
               <InlineToolbar
+                entityData={entityData}
                 handleInlineModal={this.handleInlineModal}
                 inLineStyle={this.updateInlineStyle}
                 createEntity={this.createEntity}
@@ -427,11 +429,10 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
           activeTab === 'debug-html' &&
           <pre>{HTML}</pre>
         }
-
         <ModalQuoteBoxSettings
           open={this.state.quoteBoxModalState}
           onClose={() => this.handleEntityModals('quoteBoxModalState', false)}
-          entityData={this.state.entityData}
+          entityData={entityData}
           editAtomicBlock={this.editAtomicBlock}
           createAtomicBlock={this.createAtomicBlock}
         />
