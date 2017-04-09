@@ -43,7 +43,7 @@ class Linkify extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    if (!_.isEqual(this.props.entityData, nextProps.entityData)) {
+    if (!_.isEqual(this.props.data, nextProps.entityData)) {
       this.setState({
         input: nextProps.entityData.get('input'),
         data: nextProps.entityData
@@ -99,6 +99,7 @@ class Linkify extends Component {
   render () {
     const { handleInlineModal } = this.props
     const { activeTab, data, input } = this.state
+    console.log('entity', data.toJS())
     return (
       <ModalDefault
         header={<Header as='h3'>Link Controls</Header>}

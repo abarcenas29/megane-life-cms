@@ -77,7 +77,6 @@ export function InlineToolbar ({
   removeEntity,
   entityData
 }) {
-  console.log('rendered entity data', entityData)
   return (
     <InlineToolbarContainer
       top={top}

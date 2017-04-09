@@ -93,6 +93,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
 
     this.createAtomicBlock = this.createAtomicBlock.bind(this)
     this.editAtomicBlock = this.editAtomicBlock.bind(this)
+    this.resetEntity = this.resetEntity.bind(this)
     // this.removeAtomicBlock = this.removeAtomicBlock.bind(this)
     this.focusEditor = () => setTimeout(() => this.editor.focus(), 0)
   }
@@ -148,13 +149,29 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
         entityName: type,
         entityKey: contentBlock.getEntityAt(0)
       })
+    } else if (
+      !selectionState.isCollapsed()
+    ) {
+      const startKey = selectionState.getStartKey()
+      const startOffset = selectionState.getStartOffset()
+      const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey)
+      const entityKey = blockWithLinkAtBeginning.getEntityAt(startOffset)
+
+      if (entityKey) {
+        const entityInstance = contentState.getEntity(entityKey)
+        const data = entityInstance.getData()
+        const type = entityInstance.getType()
+        this.setState({
+          entityToolBox: false,
+          entityData: fromJS(data),
+          entityName: type,
+          entityKey: entityKey
+        })
+      } else {
+        this.resetEntity()
+      }
     } else {
-      this.setState({
-        entityToolBox: false,
-        entityData: fromJS({}),
-        entityName: '',
-        entityKey: null
-      })
+      this.resetEntity()
     }
   }
 
@@ -296,6 +313,15 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
       {currentContent: newContentState}
     )
     this.handleEditorOnChange(newEditorState)
+  }
+
+  resetEntity () {
+    this.setState({
+      entityToolBox: false,
+      entityData: fromJS({}),
+      entityName: '',
+      entityKey: null
+    })
   }
 
   handleActiveTab (activeTab, callback) {
