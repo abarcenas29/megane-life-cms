@@ -98,8 +98,7 @@ class Linkify extends Component {
 
   render () {
     const { handleInlineModal } = this.props
-    const { activeTab, data, input } = this.state
-    console.log('entity', data.toJS())
+    const { activeTab, input } = this.state
     return (
       <ModalDefault
         header={<Header as='h3'>Link Controls</Header>}
