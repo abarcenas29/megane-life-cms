@@ -39,6 +39,7 @@ import {
 import blockRenderMap from './blockrender/blockRenderMap'
 
 import ModalQuoteBoxSettings from './tools/modals/QuoteBox'
+import ImageGallery from 'components/ImageGallery'
 
 const Container = css.div`
   display: flex;
@@ -63,6 +64,7 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
       readOnly: false,
       sideToolbarOffsetTop: 0,
       quoteBoxModalState: false,
+      imageGalleryModalState: true,
       inLineStyle: fromJS({
         show: false,
         top: 0,
@@ -461,6 +463,11 @@ class Wysiwig2 extends Component { // eslint-disable-line react/prefer-stateless
           entityData={entityData}
           editAtomicBlock={this.editAtomicBlock}
           createAtomicBlock={this.createAtomicBlock}
+        />
+        <ImageGallery
+          open={this.state.imageGalleryModalState}
+          size='large'
+          onClose={() => this.handleEntityModals('imageGalleryModalState', false)}
         />
       </Container>
     )

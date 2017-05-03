@@ -61,7 +61,7 @@ class ModalQuoteBoxSettings extends Component {
   }
 
   handleSave () {
-    const entityData = this.props.entityData
+    const entityData = this.props.entityData.toJS()
     if (!_.isEmpty(entityData)) {
       this.props.editAtomicBlock(this.state)
     } else {
